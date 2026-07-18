@@ -1,0 +1,53 @@
+name: "ProGuardLint"
+description: >
+  Audit ProGuard/R8 obfuscation quality in CI.
+  Parses mapping.txt and seeds.txt, checks danger zones, and comments
+  the result directly on the PR.
+
+author: "Rudra Dave"
+
+branding:
+  icon: "shield"
+  color: "green"
+
+inputs:
+  danger-zones:
+    description: >
+      Comma-separated list of package prefixes to treat as danger zones.
+      e.g. "com.mycompany.payment,com.mycompany.crypto"
+    required: true
+  fail-on-error:
+    description: "Fail the build if violations found. 'true' or 'false'"
+    required: false
+    default: "true"
+  gradle-task:
+    description: "Gradle task to run. Defaults to proguardLintRelease"
+    required: false
+    default: "proguardLintRelease"
+  comment-on-pr:
+    description: "Post audit result as PR comment. 'true' or 'false'"
+    required: false
+    default: "true"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Run ProGuardLint Gradle task"
+      shell: bash
+      run: |
+        echo "::group::ProGuardLint - Running audit"
+        ./gradlew ${{ inputs.gradle-task }} \
+          -PproguardLint.dangerZones="${{ inputs.danger-zones }}" \
+          -PproguardLint.failOnError="${{ inputs.fail-on-error }}" \
+          --no-daemon
+        echo "::endgroup::"
+
+    - name: "Post PR comment"
+      if: ${{ inputs.comment-on-pr == 'true' && github.event_name == 'pull_request' }}
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        GITHUB_EVENT_NUMBER: ${{ github.event.pull_request.number }}
+      run: |
+        PROGUARD_ACTION_PATH="${{ github.action_path }}"
+        bash "${PROGUARD_ACTION_PATH}/action/comment.sh"

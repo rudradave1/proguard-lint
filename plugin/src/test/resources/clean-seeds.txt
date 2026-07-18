@@ -1,0 +1,4 @@
+# Only app classes kept — no payment/crypto
+com.mycompany.app.MainActivity
+com.mycompany.app.ui.HomeScreen
+com.mycompany.app.service.SyncService

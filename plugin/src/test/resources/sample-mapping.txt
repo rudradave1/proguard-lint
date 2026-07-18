@@ -1,0 +1,8 @@
+com.mycompany.app.MainActivity -> a.a.a:
+com.mycompany.app.ui.HomeScreen -> b.b.b:
+com.mycompany.payment.Gatekeeper -> c.c.c:
+com.mycompany.payment.Transaction -> d.d.d:
+com.mycompany.crypto.KeyStore -> e.e.e:
+com.mycompany.analytics.Tracker -> com.mycompany.analytics.Tracker:
+    int x -> a
+    java.lang.String getToken() -> b

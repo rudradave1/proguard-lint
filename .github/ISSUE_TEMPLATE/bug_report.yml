@@ -1,0 +1,54 @@
+name: Bug Report
+description: File a bug report
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Include the ProGuardLint version, Gradle version,
+        and AGP version from your `build.gradle.kts`.
+
+  - type: input
+    id: version
+    attributes:
+      label: ProGuardLint version
+      placeholder: e.g. 0.1.0
+
+  - type: input
+    id: gradle-version
+    attributes:
+      label: Gradle version
+      placeholder: e.g. 8.10
+
+  - type: input
+    id: agp-version
+    attributes:
+      label: AGP version
+      placeholder: e.g. 8.7.3
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+
+  - type: textarea
+    id: config
+    attributes:
+      label: proguardLint config block (if applicable)
+      render: kotlin
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output or stack trace
+      render: shell
