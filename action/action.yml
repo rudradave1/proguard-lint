@@ -46,8 +46,8 @@ runs:
       if: ${{ inputs.comment-on-pr == 'true' && github.event_name == 'pull_request' }}
       shell: bash
       env:
+        PROGUARD_ACTION_PATH: "${{ github.action_path }}"
         GH_TOKEN: ${{ github.token }}
         GITHUB_EVENT_NUMBER: ${{ github.event.pull_request.number }}
       run: |
-        PROGUARD_ACTION_PATH="${{ github.action_path }}"
         bash "${PROGUARD_ACTION_PATH}/action/comment.sh"
