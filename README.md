@@ -19,6 +19,8 @@ Unlike traditional decompilation tools (like MobSF) that take minutes and requir
 ---
 
 ## Example Audit
+![ProGuardLint Screenshot](docs/screenshot.png)
+
 ```text
 > Task :app:proguardLintRelease FAILED
 
