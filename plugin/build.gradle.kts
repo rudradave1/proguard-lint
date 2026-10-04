@@ -35,3 +35,17 @@ dependencies {
 kotlin {
     jvmToolchain(17)
 }
+tasks.register<JavaExec>("benchmark") {
+    group = "verification"
+    description = "Runs the ProGuardLint audit benchmark"
+    mainClass.set("io.github.rudradave1.proguardlint.BenchmarkKt")
+    classpath = sourceSets["test"].runtimeClasspath
+    dependsOn("testClasses")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    compilerOptions {
+        allWarningsAsErrors.set(false)
+        freeCompilerArgs.add("-Xjsr305=strict")
+    }
+}

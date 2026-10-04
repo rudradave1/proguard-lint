@@ -16,23 +16,22 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
-import org.gradle.workers.WorkerExecutor
-import java.io.File
-import javax.inject.Inject
 
 abstract class ProguardLintExtension {
     abstract val dangerZones: ListProperty<String>
     abstract val failOnError: Property<Boolean>
+    abstract val runOnBuild: Property<Boolean>
 }
 
-abstract class ProguardLintTask @Inject constructor(
-    private val workerExecutor: WorkerExecutor
-) : DefaultTask() {
+@CacheableTask
+abstract class ProguardLintTask : DefaultTask() {
 
     @get:InputFile
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val mappingFile: RegularFileProperty
 
     @get:InputFile
+    @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val seedsFile: RegularFileProperty
 
     @get:Input
@@ -48,8 +47,17 @@ abstract class ProguardLintTask @Inject constructor(
     fun audit() {
         val start = System.currentTimeMillis()
 
-        val mappingLines = mappingFile.get().asFile.readLines()
-        val seedsLines = seedsFile.get().asFile.readLines()
+        val mapping = mappingFile.get().asFile
+        if (!mapping.exists()) {
+            throw GradleException("ProGuardLint: mapping.txt not found at ${mapping.absolutePath}. Is minifyEnabled = true for the release variant?")
+        }
+        val seedsTxt = seedsFile.get().asFile
+        if (!seedsTxt.exists()) {
+            throw GradleException("ProGuardLint: seeds.txt not found next to mapping.txt (${seedsTxt.absolutePath}). ProGuardLint needs R8's seeds.txt output.")
+        }
+
+        val mappingLines = mapping.readLines()
+        val seedsLines = seedsTxt.readLines()
 
         val seeds = SeedsParser.parse(seedsLines)
         MappingParser.parse(mappingLines)
@@ -92,6 +100,7 @@ class ProguardLintPlugin : Plugin<Project> {
         )
         extension.failOnError.convention(true)
         extension.dangerZones.convention(emptyList())
+        extension.runOnBuild.convention(true)
 
         val androidComponents = project.extensions.findByType(
             AndroidComponentsExtension::class.java
@@ -120,6 +129,12 @@ class ProguardLintPlugin : Plugin<Project> {
                 t.dangerZones.set(extension.dangerZones)
                 t.failOnError.set(extension.failOnError)
                 t.reportDir.set(project.layout.buildDirectory.dir("reports/proguard-lint"))
+            }
+
+            if (extension.runOnBuild.get()) {
+                project.tasks.matching { it.name == "assembleRelease" }.configureEach {
+                    it.dependsOn(taskName)
+                }
             }
         }
     }

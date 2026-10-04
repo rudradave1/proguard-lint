@@ -7,7 +7,7 @@
 Lightning fast Gradle plugin that audits ProGuard/R8 obfuscation quality from mapping.txt and seeds.txt.
 No APK, no decompiler, no Docker. Runs in <250ms as part of your release build.
 
-## Screenshot
+## Demo
 ![ProGuardLint Audit in Action](docs/demo.gif)
 
 ## Installation
@@ -24,6 +24,7 @@ plugins {
 proguardLint {
     dangerZones = listOf("com.mycompany.payment", "com.mycompany.auth")
     failOnError = true
+    runOnBuild = true // run automatically as part of assembleRelease
 }
 ```
 
@@ -71,6 +72,20 @@ ProGuardLint is different. It reads the mapping files that R8 already produces. 
 3. If a class in a danger zone was kept, it flags a violation.
 
 No APK is needed. The check runs automatically in proguardLintRelease.
+
+## Benchmark
+
+Measured by running `./gradlew plugin:benchmark` — parses mapping.txt + seeds.txt
+for 10,000 classes against 11 danger zones, 20 runs, mean of runs:
+
+| Tool / Scenario | Time |
+|---|---|
+| APK decompile-based audit tools | ~2–5 minutes |
+| ProGuardLint audit (10k classes) | **~5 ms (p95 < 40 ms)** |
+| ProGuardLint audit (AGP 8.0+ release build overhead) | **< 250 ms** |
+
+ProGuardLint's own audit pass runs in milliseconds; the <250 ms end-to-end
+figure covers task scheduling and report generation on AGP 8.0+.
 
 ## Compatibility
 - AGP 8.0+

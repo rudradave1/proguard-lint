@@ -43,3 +43,13 @@ proguard-lint/
 │   └── release.yml            # Publish on tag
 └── README.md
 ```
+
+## Benchmark
+
+```bash
+./gradlew plugin:benchmark
+```
+
+Parses a synthetic mapping.txt/seeds.txt (10k classes, 11 danger zones)
+and prints mean/p95/min/max audit times. Use this to refresh the README
+benchmark table.

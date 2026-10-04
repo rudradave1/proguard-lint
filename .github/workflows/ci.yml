@@ -31,7 +31,7 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Build and test
-        run: ./gradlew plugin:test --no-daemon
+        run: ./gradlew plugin:build --no-daemon
 
   publish:
     needs: test
